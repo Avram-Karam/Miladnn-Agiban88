@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>لوحة أدمن — ميلادا عجيبًا</title>
+<link rel="icon" href="assets/img/logo-favicon.png">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/classic-conference.css">
+<style>
+body{min-height:100vh;background:#060d1a;color:#e2e8f0;font-family:Cairo,Arial,sans-serif}
+.wrap{max-width:1350px;margin:auto;padding:1rem}
+.cardx{background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(7,13,25,.98));border:1px solid rgba(148,163,184,.14);border-radius:22px;padding:1rem;box-shadow:0 18px 45px rgba(0,0,0,.3)}
+.login{max-width:430px;margin:8vh auto;text-align:center;border-color:rgba(34,211,238,.35)}
+.logo{width:90px;height:90px;object-fit:contain;background:#fff;border-radius:50%;padding:5px;margin-bottom:10px}
+.input,.select,.textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.18);border-radius:12px;padding:11px 13px;color:#fff;outline:none}
+.select option{background:#0f172a;color:#fff}.textarea{min-height:220px;font-family:monospace;direction:ltr;text-align:left}
+.btnx{border:0;border-radius:12px;padding:10px 15px;font-weight:900;cursor:pointer}
+.primary{background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff}.gold{background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff}
+.danger{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.35);color:#f87171}
+.tabs{display:flex;gap:8px;overflow:auto;padding:5px 0;margin-bottom:12px}
+.tab{white-space:nowrap;border:1px solid rgba(148,163,184,.14);background:rgba(255,255,255,.04);color:#94a3b8;padding:9px 14px;border-radius:13px;font-weight:800;cursor:pointer}
+.tab.active{background:rgba(6,182,212,.14);color:#67e8f9;border-color:rgba(6,182,212,.4)}
+.panel{display:none}.panel.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.stat{padding:14px;border-radius:17px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);text-align:center}
+.stat b{font-size:1.5rem;color:#67e8f9}
+.group-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.group-card{padding:16px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.1)}
+.group-score{font-size:2.2rem;font-weight:900;color:#fbbf24}.bar{height:8px;border-radius:10px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#06b6d4,#f59e0b)}
+.table-wrap{overflow:auto}.table{color:#e2e8f0;min-width:850px}.table th{color:#67e8f9;background:rgba(6,182,212,.08)}
+.small-muted{color:#94a3b8;font-size:.78rem}.row-actions{display:flex;gap:5px;flex-wrap:wrap}
+.score-box{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.mini{padding:10px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);text-align:center}
+.mini b{display:block;font-size:1.2rem;color:#67e8f9}.danger-text{color:#f87171}.success-text{color:#4ade80}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:#0f172a;border:1px solid rgba(34,211,238,.35);padding:10px 18px;border-radius:13px;opacity:0;pointer-events:none;transition:.25s;z-index:9999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:1000px){.group-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.score-box{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="login" class="cardx login">
+  <img class="logo" src="assets/img/logo-hero.webp">
+  <h1 class="h3 fw-bold">لوحة إدارة ميلادا عجيبًا</h1>
+  <p class="small-muted">دخول الأدمن — إدارة الدرجات والمجموعات والغرف والأفراد</p>
+  <input id="user" class="input mt-3" placeholder="اسم المستخدم" value="admin">
+  <input id="pass" class="input mt-2" type="password" placeholder="كلمة المرور">
+  <button class="btnx primary w-100 mt-3" onclick="login()">دخول لوحة الإدارة</button>
+  <div id="loginErr" class="text-danger fw-bold mt-2" style="display:none"></div>
+</section>
+
+<section id="app" style="display:none">
+  <div class="cardx mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <div class="h4 fw-bold mb-1">⚙️ لوحة التحكم الكاملة</div>
+      <div class="small-muted">الألعاب 100 + الكويزات 30 + الحضور 120 + البانفلت 50 = <strong style="color:#fbbf24">300 درجة</strong></div>
+    </div>
+    <div class="row-actions">
+      <button class="btnx primary" onclick="loadAll()">↻ تحديث</button>
+      <button class="btnx danger" onclick="logout()">خروج</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="tab('scores',this)">🏆 درجات المجموعات</button>
+    <button class="tab" onclick="tab('individual',this)">👤 درجات الأفراد</button>
+    <button class="tab" onclick="tab('quiz-reset',this)">🔓 فتح الكويز</button>
+    <button class="tab" onclick="tab('structure',this)">🏠 المجموعات والغرف</button>
+    <button class="tab" onclick="tab('people',this)">👥 الأفراد</button>
+  </div>
+
+  <div id="scores" class="panel active">
+    <div class="stats" id="stats"></div>
+    <div class="group-grid mt-3" id="groupGrid"></div>
+  </div>
+
+  <div id="individual" class="panel">
+    <div class="cardx">
+      <h3 class="h5 fw-bold">تعديل درجة فرد</h3>
+      <div class="row g-2">
+        <div class="col-md-4"><label class="small-muted">الاسم</label><input id="indName" class="input" list="namesList" placeholder="اكتب الاسم"></div>
+        <div class="col-md-3"><label class="small-muted">المجموعة</label><select id="indGroup" class="select"></select></div>
+        <div class="col-md-3"><label class="small-muted">نوع الدرجة</label><select id="indCat" class="select"></select></div>
+        <div class="col-md-2"><label class="small-muted">الدرجة</label><input id="indScore" class="input" type="number" min="0" max="120" value="0"></div>
+      </div>
+      <datalist id="namesList"></datalist>
+      <div class="row-actions mt-3">
+        <button class="btnx gold" onclick="saveIndividual()">حفظ / تعديل</button>
+        <button class="btnx danger" onclick="deleteIndividualScore()">حذف الدرجة</button>
+      </div>
+    </div>
+    <div class="cardx mt-3 table-wrap">
+      <table class="table">
+        <thead><tr><th>الاسم</th><th>المجموعة</th><th>النوع</th><th>الدرجة</th><th>الحد</th><th>تعديل</th></tr></thead>
+        <tbody id="indTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="quiz-reset" class="panel">
+    <div class="cardx">
+      <h3 class="h5 fw-bold">🔓 إعادة فتح كويز المحاضرات</h3>
+      <div class="small-muted mb-3">كل كويز محاولة واحدة فقط. إعادة الفتح من الأدمن فقط، والمحاولة القديمة تظل محفوظة في سجل التاريخ.</div>
+      <div class="row g-2">
+        <div class="col-md-5"><label class="small-muted">اسم الطالب</label><input id="resetQuizName" class="input" list="namesList" placeholder="اكتب الاسم"></div>
+        <div class="col-md-3"><label class="small-muted">المجموعة</label><select id="resetQuizGroup" class="select"></select></div>
+        <div class="col-md-2"><label class="small-muted">الكويز</label><select id="resetQuizCategory" class="select"><option value="lecture1">المحاضرة الأولى</option><option value="lecture2">المحاضرة الثانية</option></select></div>
+        <div class="col-md-2 d-flex align-items-end"><button class="btnx gold w-100" onclick="resetQuizForStudent()">فتح مرة أخرى</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="structure" class="panel">
+    <div class="cardx">
+      <h3 class="h5 fw-bold">المجموعات</h3>
+      <div class="small-muted mb-2">هذه البيانات تُحفظ داخل SiteConfig.</div>
+      <textarea id="groupsJson" class="textarea"></textarea>
+      <button class="btnx gold mt-2" onclick="saveJsonConfig('groups','groupsJson')">حفظ المجموعات</button>
+    </div>
+    <div class="cardx mt-3">
+      <h3 class="h5 fw-bold">الغرف والتسكين</h3>
+      <div class="small-muted mb-2">تعديل بيانات الغرف داخل إعدادات الموقع.</div>
+      <textarea id="roomsJson" class="textarea"></textarea>
+      <button class="btnx gold mt-2" onclick="saveJsonConfig('rooms','roomsJson')">حفظ الغرف</button>
+    </div>
+  </div>
+
+  <div id="people" class="panel">
+    <div class="cardx">
+      <h3 class="h5 fw-bold">إدارة الأفراد</h3>
+      <div class="row g-2">
+        <div class="col-md-4"><input id="personNameAdmin" class="input" placeholder="الاسم"></div>
+        <div class="col-md-2"><select id="personGroupAdmin" class="select"></select></div>
+        <div class="col-md-2"><input id="personRoomAdmin" class="input" placeholder="الغرفة"></div>
+        <div class="col-md-2"><input id="personBusAdmin" class="input" placeholder="الأتوبيس"></div>
+        <div class="col-md-2"><input id="personSeatAdmin" class="input" placeholder="المقعد"></div>
+      </div>
+      <div class="row-actions mt-3">
+        <button class="btnx gold" onclick="savePersonAdmin()">حفظ / إضافة</button>
+        <button class="btnx primary" onclick="renderPeopleAdmin()">تحديث القائمة</button>
+      </div>
+    </div>
+    <div class="cardx mt-3 table-wrap">
+      <table class="table">
+        <thead><tr><th>الاسم</th><th>المجموعة</th><th>الغرفة</th><th>الأتوبيس</th><th>المقعد</th><th>إجراء</th></tr></thead>
+        <tbody id="peopleTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* =========================================================
+   V8 ADMIN — متصل مباشرة بـ Google Apps Script
+   ========================================================= */
+const GAS_URL = '/api/gas';
+const ADMIN_AUTH_URL = '/api/admin-auth';
+
+const cats = [
+ ['lecture1','كويز المحاضرة الأولى',15],
+ ['lecture2','كويز المحاضرة الثانية',15],
+ ['attendance1','حضور التسحبة 1',15],
+ ['attendance2','حضور التسبحة 2',15],
+ ['attendance3','القداس',15],
+ ['attendance4','صلاة باكر',15],
+ ['attendance5','غروب ونوم 1',15],
+ ['attendance6','غروب ونوم 2',15],
+ ['attendance7','محاضرة اليوم الأول',15],
+ ['attendance8','محاضرة اليوم الثاني',15],
+ ['pamphlet','البانفلت',50]
+];
+
+const games = [
+ ['hymn','اللحن',15],
+ ['pressure','الضغط',15],
+ ['sketch','الاسكتش',30],
+ ['studio','الاستوديو',20],
+ ['conferenceHymn','لحن المؤتمر',20]
+];
+
+let adminUser = 'admin';
+let adminPass = '';
+let data = {gameScores:[],individualScores:[],config:{},totals:{}};
+let attendees = [];
+let structure = {groups:[],rooms:[]};
+
+function esc(v){
+ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function toast(m){
+ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show');
+ setTimeout(()=>t.classList.remove('show'),2400);
+}
+async function gas(action,payload={}){
+ const body={action,...payload};
+ const readOnly = ['get','getAll','getScorebook','getSiteConfig','getGroupScores','getScores'].includes(action);
+ if(!readOnly){
+   body.sessionToken=sessionStorage.getItem('admin_session_token')||'';
+ }
+ const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
+ const j=await r.json().catch(()=>null);
+ if(!j) throw Error('الـAPI لم يرجع استجابة صحيحة');
+ if(!r.ok || j.status==='error') throw Error(j.message||`فشل الطلب (${r.status})`);
+ return j;
+}
+async function login(){
+ const u=document.getElementById('user').value.trim();
+ const p=document.getElementById('pass').value;
+ try{
+   const r=await fetch(ADMIN_AUTH_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+   const j=await r.json().catch(()=>null);
+   if(!r.ok || j?.status!=='success' || !j.token) throw Error(j?.message||'بيانات الدخول غير صحيحة');
+   adminUser=u; adminPass='';
+   sessionStorage.setItem('admin_session_token',j.token);
+   sessionStorage.setItem('v8_admin_ok','1');
+   sessionStorage.setItem('v8_admin_user',u);
+   document.getElementById('login').style.display='none';
+   document.getElementById('app').style.display='block';
+   await loadAll();
+ }catch(e){
+   const x=document.getElementById('loginErr'); x.style.display='block'; x.textContent=e.message;
+ }
+}
+function logout(){
+ sessionStorage.clear(); location.reload();
+}
+function tab(id,btn){
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+ btn.classList.add('active');
+}
+async function loadAll(){
+ try{
+   const [scores,people,config] = await Promise.all([
+     gas('getScorebook'),
+     gas('getAll'),
+     gas('getSiteConfig')
+   ]);
+   data=scores.data||{gameScores:[],individualScores:[],config:{},totals:{}};
+   attendees=people.data||[];
+   const cfg=config.data||{};
+   structure.groups=Array.isArray(cfg.groups)?cfg.groups:buildGroupsFromAttendees();
+   structure.rooms=Array.isArray(cfg.rooms)?cfg.rooms:buildRoomsFromAttendees();
+   document.getElementById('groupsJson').value=JSON.stringify(structure.groups,null,2);
+   document.getElementById('roomsJson').value=JSON.stringify(structure.rooms,null,2);
+   fillSelectors();
+   renderGroups();
+   renderIndividuals();
+   renderPeopleAdmin();
+ }catch(e){
+   console.error(e); toast('تعذر تحميل البيانات: '+e.message);
+ }
+}
+function buildGroupsFromAttendees(){
+ const map={};
+ attendees.forEach(p=>{
+   if(!p.group)return;
+   if(!map[p.group])map[p.group]={name:p.group,members:[]};
+   if(!map[p.group].members.includes(p.name))map[p.group].members.push(p.name);
+ });
+ return Object.values(map);
+}
+function buildRoomsFromAttendees(){
+ const map={};
+ attendees.forEach(p=>{
+   if(!p.room)return;
+   if(!map[p.room])map[p.room]={room:p.room,members:[]};
+   if(!map[p.room].members.includes(p.name))map[p.room].members.push(p.name);
+ });
+ return Object.values(map);
+}
+function fillSelectors(){
+ const groups=structure.groups||[];
+ const opts=groups.map(g=>`<option value="${esc(g.name)}">${esc(g.name)}</option>`).join('');
+ ['indGroup','resetQuizGroup','personGroupAdmin'].forEach(id=>document.getElementById(id).innerHTML=opts);
+ document.getElementById('indCat').innerHTML=cats.map(c=>`<option value="${c[0]}">${esc(c[1])} — ${c[2]}</option>`).join('');
+ document.getElementById('namesList').innerHTML=attendees.map(p=>`<option value="${esc(p.name)}">`).join('');
+}
+function groupMembers(group){
+ const g=(structure.groups||[]).find(x=>x.name===group);
+ return g?.members||attendees.filter(p=>p.group===group).map(p=>p.name);
+}
+function calcGroup(group){
+ const gs=data.gameScores.filter(x=>x.group===group);
+ const members=groupMembers(group);
+ let gamesEarned=gs.reduce((a,x)=>a+Number(x.score||0),0);
+ let gamesMax=100;
+ let attendance=0,pamphlet=0,quizzes=0;
+ members.forEach(name=>{
+   data.individualScores.filter(x=>x.name===name && x.group===group).forEach(x=>{
+     const s=Number(x.score||0);
+     if(String(x.category).startsWith('attendance')) attendance+=s;
+     else if(x.category==='pamphlet') pamphlet+=s;
+     else if(x.category==='lecture1'||x.category==='lecture2') quizzes+=s;
+   });
+ });
+ return {group,membersCount:members.length,gamesEarned,gamesMax,attendance,pamphlet,quizzes,total:gamesEarned+attendance+pamphlet+quizzes,details:Object.fromEntries(gs.map(x=>[x.gameId,x.score]))};
+}
+function renderGroups(){
+ const gs=structure.groups||[];
+ const sums=gs.map(g=>calcGroup(g.name));
+ const maxTotal=300;
+ const top=Math.max(...sums.map(s=>s.total),0);
+ document.getElementById('stats').innerHTML=
+ `<div class="stat"><b>${gs.length}</b><div class="small-muted">مجموعات</div></div>
+  <div class="stat"><b>${attendees.length}</b><div class="small-muted">أفراد</div></div>
+  <div class="stat"><b>300</b><div class="small-muted">الحد الأقصى للفرد</div></div>
+  <div class="stat"><b>${top.toFixed(1)}</b><div class="small-muted">أعلى مجموع مجموعة</div></div>
+  <div class="stat"><b>${data.gameScores.length}</b><div class="small-muted">درجات ألعاب مسجلة</div></div>`;
+ document.getElementById('groupGrid').innerHTML=sums.map((s,i)=>`
+ <div class="group-card">
+  <div class="d-flex justify-content-between"><strong>${esc(s.group)}</strong><span class="small-muted">${s.membersCount} عضو</span></div>
+  <div class="group-score">${s.total.toFixed(1)} <span style="font-size:.9rem;color:#94a3b8">/ 300</span></div>
+  <div class="bar"><i style="width:${Math.min(100,s.total/3)}%"></i></div>
+  <div class="score-box mt-3">
+   <div class="mini"><b>${s.gamesEarned}</b><span class="small-muted">الألعاب / 100</span></div>
+   <div class="mini"><b>${s.quizzes}</b><span class="small-muted">الكويزات / 30</span></div>
+   <div class="mini"><b>${s.attendance}</b><span class="small-muted">الحضور / 120</span></div>
+   <div class="mini"><b>${s.pamphlet}</b><span class="small-muted">البانفلت / 50</span></div>
+  </div>
+  <hr style="border-color:rgba(255,255,255,.08)">
+  <div class="small-muted mb-2">درجات الألعاب — تعديل مباشر من الأدمن</div>
+  ${games.map(g=>{
+    const val=s.details[g[0]]??0;
+    return `<div class="d-flex align-items-center gap-2 mb-2">
+      <span style="flex:1;font-size:.82rem">${esc(g[1])} <span class="small-muted">/${g[2]}</span></span>
+      <input class="input" style="width:80px;padding:6px" type="number" min="0" max="${g[2]}" value="${val}" id="game-${i}-${g[0]}">
+      <button class="btnx gold" style="padding:6px 9px" onclick="saveGame('${esc(s.group)}','${g[0]}',document.getElementById('game-${i}-${g[0]}').value)">حفظ</button>
+    </div>`;
+  }).join('')}
+ </div>`).join('');
+}
+function renderIndividuals(){
+ const rows=data.individualScores||[];
+ document.getElementById('indTable').innerHTML=rows.map((r,i)=>`
+ <tr><td>${esc(r.name)}</td><td>${esc(r.group)}</td><td>${esc(r.label||r.category)}</td><td>${r.score}</td><td>${r.max}</td>
+ <td><button class="btnx primary" style="padding:5px 8px" onclick="quickEdit(${i})">تعديل</button></td></tr>`).join('')||
+ '<tr><td colspan="6" class="text-center text-secondary">لا توجد درجات فردية مسجلة.</td></tr>';
+}
+function quickEdit(i){
+ const r=data.individualScores[i];
+ document.getElementById('indName').value=r.name;
+ document.getElementById('indGroup').value=r.group;
+ document.getElementById('indCat').value=r.category;
+ document.getElementById('indScore').value=r.score;
+ tab('individual',document.querySelectorAll('.tab')[1]);
+}
+async function saveGame(group,gameId,score){
+ try{
+   await gas('adminSetScore',{type:'game',group,gameId,score:Number(score)});
+   toast('تم حفظ درجة اللعبة');
+   await loadAll();
+ }catch(e){toast(e.message)}
+}
+async function saveIndividual(){
+ try{
+   const name=document.getElementById('indName').value.trim();
+   const group=document.getElementById('indGroup').value;
+   const category=document.getElementById('indCat').value;
+   const max=cats.find(c=>c[0]===category)?.[2]||50;
+   const score=Math.max(0,Math.min(max,Number(document.getElementById('indScore').value||0)));
+   if(!name||!group)throw Error('الاسم والمجموعة مطلوبان');
+   await gas('adminSetScore',{type:'individual',name,group,category,score,max});
+   toast('تم حفظ الدرجة');
+   await loadAll();
+ }catch(e){toast(e.message)}
+}
+async function deleteIndividualScore(){
+ try{
+   const name=document.getElementById('indName').value.trim();
+   const group=document.getElementById('indGroup').value;
+   const category=document.getElementById('indCat').value;
+   if(!name)throw Error('اكتب الاسم');
+   if(!confirm('حذف هذه الدرجة نهائيًا؟'))return;
+   await gas('adminDeleteScore',{type:'individual',name,group,category});
+   toast('تم حذف الدرجة');
+   await loadAll();
+ }catch(e){toast(e.message)}
+}
+async function resetQuizForStudent(){
+ try{
+   const name=document.getElementById('resetQuizName').value.trim();
+   const group=document.getElementById('resetQuizGroup').value;
+   const category=document.getElementById('resetQuizCategory').value;
+   if(!name)throw Error('اكتب اسم الطالب');
+   if(!confirm('تأكيد إعادة فتح الكويز؟'))return;
+   await gas('adminResetQuiz',{name,group,category,resetBy:adminUser});
+   toast('تم فتح الكويز مرة أخرى');
+   await loadAll();
+ }catch(e){toast(e.message)}
+}
+async function saveJsonConfig(key,id){
+ try{
+   const parsed=JSON.parse(document.getElementById(id).value);
+   await gas('updateSiteConfig',{key,value:parsed});
+   toast('تم حفظ الإعداد');
+   await loadAll();
+ }catch(e){toast('خطأ: '+e.message)}
+}
+function renderPeopleAdmin(){
+ const ps=attendees||[];
+ document.getElementById('peopleTable').innerHTML=ps.map((p,i)=>`
+ <tr><td>${esc(p.name)}</td><td>${esc(p.group)}</td><td>${esc(p.room)}</td><td>${esc(p.bus)}</td><td>${esc(p.seat)}</td>
+ <td><button class="btnx primary" style="padding:5px 8px" onclick="editPersonAdmin(${i})">تعديل</button>
+ <button class="btnx danger" style="padding:5px 8px" onclick="deletePersonAdmin(${i})">حذف</button></td></tr>`).join('')||
+ '<tr><td colspan="6" class="text-center text-secondary">لا يوجد أفراد</td></tr>';
+}
+function editPersonAdmin(i){
+ const p=attendees[i];
+ document.getElementById('personNameAdmin').value=p.name||'';
+ document.getElementById('personGroupAdmin').value=p.group||'';
+ document.getElementById('personRoomAdmin').value=p.room||'';
+ document.getElementById('personBusAdmin').value=p.bus||'';
+ document.getElementById('personSeatAdmin').value=p.seat||'';
+ tab('people',document.querySelectorAll('.tab')[4]);
+}
+async function syncPersonStructure(name, newGroup, newRoom){
+ const clean=String(name||'').trim();
+ const group=String(newGroup||'').trim();
+ const room=String(newRoom||'').trim().replace(/^(غرفة\s*)/,'');
+ const groups=JSON.parse(JSON.stringify(structure.groups||[]));
+ const rooms=JSON.parse(JSON.stringify(structure.rooms||[]));
+ groups.forEach(g=>{g.members=(Array.isArray(g.members)?g.members:[]).filter(n=>String(n).trim()!==clean);});
+ if(group){
+   let g=groups.find(x=>String(x.name||'').trim()===group);
+   if(!g){g={id:'g'+(groups.length+1),name:group,members:[]};groups.push(g);}
+   if(!g.members.includes(clean)) g.members.push(clean);
+ }
+ rooms.forEach(r=>{r.persons=(Array.isArray(r.persons)?r.persons:[]).filter(n=>String(n).trim()!==clean);});
+ if(room){
+   let r=rooms.find(x=>String(x.name||x.room||'').replace(/^غرفة\s*/,'').trim()===room || String(x.id||'')==='r'+room);
+   if(!r){r={id:'r'+room,name:'غرفة '+room,floor:Number(String(room).charAt(0))||1,capacity:6,gender:'',persons:[]};rooms.push(r);}
+   if(!Array.isArray(r.persons)) r.persons=[];
+   if(!r.persons.includes(clean)) r.persons.push(clean);
+ }
+ structure.groups=groups; structure.rooms=rooms;
+ await gas('updateSiteConfig',{key:'groups',value:groups});
+ await gas('updateSiteConfig',{key:'rooms',value:rooms});
+}
+
+async function savePersonAdmin(){
+ try{
+   const payload={
+     name:document.getElementById('personNameAdmin').value.trim(),
+     group:document.getElementById('personGroupAdmin').value,
+     room:document.getElementById('personRoomAdmin').value.trim(),
+     bus:document.getElementById('personBusAdmin').value.trim(),
+     seat:document.getElementById('personSeatAdmin').value.trim()
+   };
+   if(!payload.name)throw Error('اكتب الاسم');
+   await gas('update',payload);
+   await syncPersonStructure(payload.name,payload.group,payload.room);
+   toast('تم حفظ بيانات الشخص والمجموعة والتسكين');
+   await loadAll();
+ }catch(e){toast(e.message)}
+}
+async function deletePersonAdmin(i){
+ const p=attendees[i]; if(!p)return;
+ if(!confirm('حذف '+p.name+' نهائيًا؟'))return;
+ try{
+   await gas('delete',{name:p.name});
+   await syncPersonStructure(p.name,'','');
+   toast('تم حذف الشخص والمجموعة والتسكين');
+   await loadAll();
+ }catch(e){toast(e.message)}
+}
+
+(function restore(){
+ const token=sessionStorage.getItem('admin_session_token');
+ if(sessionStorage.getItem('v8_admin_ok')==='1' && token){
+   adminUser=sessionStorage.getItem('v8_admin_user')||'admin';
+   adminPass='';
+   document.getElementById('login').style.display='none';
+   document.getElementById('app').style.display='block';
+   loadAll();
+ }
+})();
+</script>
+</body>
+</html>
